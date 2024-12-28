@@ -87,7 +87,7 @@ public class Bot extends ListenerAdapter {
     if (user != null) {
       ImmutableMap<String, String> v3Tags = event.getV3Tags();
       if (v3Tags != null) {
-        String nick = user.getNick();
+        String nick = v3Tags.get("display-name");
         if (!ModConfig.getConfig().getIgnoreList().contains(nick)) {
           String colorTag = v3Tags.get("color");
           TextColor formattingColor;
