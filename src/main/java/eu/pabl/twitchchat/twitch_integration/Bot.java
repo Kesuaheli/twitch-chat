@@ -82,37 +82,46 @@ public class Bot extends ListenerAdapter {
   @Override
   public void onMessage(MessageEvent event) throws Exception {
     String message = event.getMessage();
-    System.out.println("TWITCH MESSAGE: " + message);
     User user = event.getUser();
-    if (user != null) {
-      ImmutableMap<String, String> v3Tags = event.getV3Tags();
-      if (v3Tags != null) {
-        String nick = v3Tags.get("display-name");
-        if (!ModConfig.getConfig().getIgnoreList().contains(nick)) {
-          String colorTag = v3Tags.get("color");
-          TextColor formattingColor;
-          
-          if (isFormattingColorCached(nick)) {
-            formattingColor = getFormattingColor(nick);
-          } else {
-            if (colorTag.equals("")) {
-              formattingColor = CalculateMinecraftColor.getDefaultUserColor(nick);
-            } else {
-              Color userColor = Color.decode(colorTag);
-              formattingColor = TextColor.fromRgb(userColor.getRGB());
-            }
-            putFormattingColor(nick, formattingColor);
-          }
-
-          String formattedTime = TwitchChatMod.formatTMISentTimestamp(v3Tags.get("tmi-sent-ts"));
-          TwitchChatMod.addTwitchMessage(formattedTime, nick, message, formattingColor, false);
-        }
-      } else {
-        System.out.println("Message with no v3tags: " + event.getMessage());
-      }
-    } else {
+    if (user == null) {
       System.out.println("NON-USER MESSAGE" + event.getMessage());
+      return;
     }
+
+    ImmutableMap<String, String> v3Tags = event.getV3Tags();
+    if (v3Tags == null) {
+      System.out.println("Message with no v3tags: " + event.getMessage());
+      return;
+    }
+
+    String nick = user.getNick();
+    if (v3Tags.containsKey("display-name") && v3Tags.get("display-name") != null) {
+      nick = v3Tags.get("display-name");
+    }
+    assert nick != null;
+
+    if (ModConfig.getConfig().getIgnoreList().contains(nick.toLowerCase())) {
+      return;
+    }
+
+    String colorTag = v3Tags.get("color");
+    assert colorTag != null;
+    TextColor formattingColor;
+
+    if (isFormattingColorCached(nick)) {
+      formattingColor = getFormattingColor(nick);
+    } else {
+      if (colorTag.equals("")) {
+        formattingColor = CalculateMinecraftColor.getDefaultUserColor(nick);
+      } else {
+        Color userColor = Color.decode(colorTag);
+        formattingColor = TextColor.fromRgb(userColor.getRGB());
+      }
+      putFormattingColor(nick, formattingColor);
+    }
+
+    String formattedTime = TwitchChatMod.formatTMISentTimestamp(v3Tags.get("tmi-sent-ts"));
+    TwitchChatMod.addTwitchMessage(formattedTime, nick, message, formattingColor, false);
   }
 
   @Override

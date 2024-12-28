@@ -9,6 +9,7 @@ import java.util.Date;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.TextColor;
@@ -27,7 +28,9 @@ public class TwitchChatMod implements ModInitializer {
   }
 
   public static void addTwitchMessage(String time, String username, String message, TextColor textColor, boolean isMeMessage) {
+    message = sanitiseMessage(message);
     MutableText timestampText = Text.literal(time);
+    MutableText prefixText = Text.literal(ModConfig.getConfig().getBroadcastPrefix()).styled(style -> style.withColor(Formatting.DARK_PURPLE));
     MutableText usernameText = Text.literal(username).styled(style -> style.withColor(textColor));
     MutableText messageBodyText;
 
@@ -48,22 +51,18 @@ public class TwitchChatMod implements ModInitializer {
       usernameText = Text.literal("* ").append(usernameText);
     }
 
+    Text textMessage = timestampText
+        .append(prefixText)
+        .append(usernameText)
+        .append(messageBodyText);
+
     if (ModConfig.getConfig().isBroadcastEnabled()) {
-      try {
-        String plainTextMessage = ModConfig.getConfig().getBroadcastPrefix() + username + ": " + message;
-        plainTextMessage = sanitiseMessage(plainTextMessage);
-        if (MinecraftClient.getInstance().player != null) {
-          MinecraftClient.getInstance().player.sendMessage(Text.literal(plainTextMessage), false);
-        }
-      } catch (NullPointerException e) {
-        System.err.println("TWITCH BOT FAILED TO BROADCAST MESSAGE: " + e.getMessage());
+      if (MinecraftClient.getInstance().player != null) {
+        MinecraftClient.getInstance().player.sendMessage(textMessage, false);
+        return;
       }
-    } else {
-      MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
-          timestampText
-          .append(usernameText)
-          .append(messageBodyText));
     }
+    MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(textMessage);
   }
 
   private static String sanitiseMessage(String message) {
