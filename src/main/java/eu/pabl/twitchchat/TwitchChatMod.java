@@ -31,7 +31,7 @@ public class TwitchChatMod implements ModInitializer {
     message = sanitiseMessage(message);
     MutableText timestampText = Text.literal(time);
     MutableText prefixText = Text.literal(ModConfig.getConfig().getBroadcastPrefix()).styled(style -> style.withColor(Formatting.DARK_PURPLE));
-    MutableText usernameText = Text.literal(username).styled(style -> style.withColor(textColor));
+    MutableText usernameText = Text.literal(username).styled(style -> style.withColor(textColor).withUnderline(true));
     MutableText messageBodyText;
 
     if (!isMeMessage) {
