@@ -6,6 +6,7 @@
   "config.twitchchat.credentials.username.tooltip": "Your Twitch username",
   "config.twitchchat.credentials.oauthKey": "OAuth Token",
   "config.twitchchat.credentials.oauthKey.tooltip": "Your Twitch OAuth token",
+  "config.twitchchat.credentials.oauthKey.error.missing_prefix": "The OAuth token should start with \"oauth:\"",
   "config.twitchchat.category.cosmetics": "Cosmetics",
   "config.twitchchat.cosmetics.prefix": "Prefix",
   "config.twitchchat.cosmetics.prefix.tooltip": "Put this at the start of your messages to send them to a Twitch channel",

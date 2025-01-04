@@ -11,9 +11,11 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.text.Text;
 
 public class ModConfig {
 
@@ -157,6 +159,13 @@ public class ModConfig {
 
   public void setOauthKey(String oauthKey) {
     this.oauthKey = oauthKey;
+  }
+
+  public Optional<Text> checkOauthKey(String oauthKey) {
+    if (!oauthKey.startsWith("oauth:")) {
+      return Optional.of(Text.translatable("config.twitchchat.credentials.oauthKey.error.missing_prefix"));
+    }
+    return Optional.empty();
   }
 
   public String getPrefix() {
