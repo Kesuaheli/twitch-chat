@@ -1,5 +1,7 @@
 package eu.pabl.twitchchat.badge;
 
+import com.github.twitch4j.helix.domain.ChatBadge;
+import com.github.twitch4j.helix.domain.ChatBadgeSet;
 import eu.pabl.twitchchat.TwitchChatMod;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
@@ -13,6 +15,9 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -31,9 +36,26 @@ public class Badge {
      */
     public static final Badge EMPTY = new Badge("", null);
 
-    Badge(String name, NativeImage image) {
+    public Badge(String name, NativeImage image) {
         this.name = name;
         this.image = image;
+    }
+
+    public Badge(ChatBadgeSet chatBadgeSet) {
+        this.name = chatBadgeSet.getSetId();
+        ChatBadge lastVersion = chatBadgeSet.getVersions().getLast();
+        this.displayName = Text.literal(lastVersion.getTitle());
+
+        try {
+            URI imageURI = new URI(lastVersion.getLargeImageUrl());
+            this.image = NativeImage.read(imageURI.toURL().openStream());
+        } catch (URISyntaxException | MalformedURLException e) {
+            TwitchChatMod.LOGGER.error("Couldn't parse " + this.name + " badge url '" + lastVersion.getLargeImageUrl() + "'");
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            TwitchChatMod.LOGGER.error("Couldn't read image data for " + this.name + " badge url '" + lastVersion.getLargeImageUrl() + "'");
+            throw new RuntimeException(e);
+        }
     }
 
     /**
