@@ -1,5 +1,6 @@
 package eu.pabl.twitchchat.badge;
 
+import com.github.twitch4j.helix.domain.ChatBadgeSet;
 import eu.pabl.twitchchat.TwitchChatMod;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -11,6 +12,9 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class Badge {
     private final String name;
@@ -100,6 +104,37 @@ public class Badge {
         throw new IllegalArgumentException("badge named '" + name + "' does not exist");
     }
 
+    public static void add(ChatBadgeSet badgeSet) {
+        String name = badgeSet.getSetId();
+
+        String urlString = badgeSet.getVersions().getLast().getLargeImageUrl();
+        NativeImage image;
+        try {
+            image = NativeImage.read(
+                new URI(urlString)
+                    .toURL()
+                    .openStream()
+            );
+        } catch (URISyntaxException | MalformedURLException e) {
+            TwitchChatMod.LOGGER.error("Couldn't parse " + name + " badge url '" + urlString + "' : " + e);
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            TwitchChatMod.LOGGER.error("Couldn't read image data from " + name + " badge url '" + urlString + "' : " + e);
+            throw new RuntimeException(e);
+        }
+
+        int codePoint;
+        try {
+            codePoint = codePoint(name);
+        } catch (IllegalArgumentException e) {
+            codePoint = codePoints()
+                .intStream()
+                .sorted()
+                .reduce((first, last) -> last)
+                .orElse(32) + 1;
+        }
+        add(codePoint, name, image);
+    }
     public static Badge add(int codePoint, String name) throws IOException {
         return add(codePoint, new Badge(name));
     }
