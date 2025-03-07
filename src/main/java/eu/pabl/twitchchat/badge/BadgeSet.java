@@ -32,7 +32,7 @@ public class BadgeSet {
    */
   public Badge get(String name) throws IllegalArgumentException {
     return badges.values().stream()
-        .filter(badge -> badge.toString().equals(name) && badge.channelID == null)
+        .filter(badge -> badge.getName().equals(name) && badge.channelID == null)
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("badge named '" + name + "' does not exist"));
   }
@@ -48,7 +48,7 @@ public class BadgeSet {
   public Badge get(String channelID, String name) throws IllegalArgumentException {
     if (channelID == null) return get(name);
     return badges.values().stream()
-        .filter(badge -> badge.toString().equals(name) && Objects.equals(badge.channelID, channelID))
+        .filter(badge -> badge.getName().equals(name) && Objects.equals(badge.channelID, channelID))
         .findFirst()
         .orElse(get(name));
   }
@@ -76,7 +76,7 @@ public class BadgeSet {
    * @throws IllegalArgumentException If the given name is not a global badge.
    */
   public String getChar(String name) throws IllegalArgumentException {
-    return get(name).toString();
+    return Character.toString((char) get(name).getCodepoint());
   }
 
   /**
@@ -88,7 +88,7 @@ public class BadgeSet {
    * @throws IllegalArgumentException If the given name is neither a channel badge nor a global badge.
    */
   public String getChar(String channelID, String name) throws IllegalArgumentException {
-    return get(channelID, name).toString();
+    return Character.toString((char) get(channelID, name).getCodepoint());
   }
 
   /**

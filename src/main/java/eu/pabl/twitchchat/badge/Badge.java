@@ -5,13 +5,20 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.TextureContents;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.text.HoverEvent;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class Badge {
     private final String name;
+    private MutableText displayName;
     String channelID;
+    private int codepoint;
     private final NativeImage image;
 
     /**
@@ -50,12 +57,62 @@ public class Badge {
     }
 
     /**
-     * @return The name of the badge
+     * @return The display text of the badge.
      */
-    @Override
-    public String toString() {
-            return name;
+    public MutableText getDisplayName() {
+        return displayName;
+    }
+
+    /**
+     * @param displayName The updated display text.
+     */
+    public void setDisplayName(MutableText displayName) {
+        this.displayName = displayName;
+    }
+
+    /**
+     * @param displayName The updated display text.
+     */
+    public void setDisplayName(String displayName) {
+        setDisplayName(Text.literal(displayName));
+    }
+
+    public HoverEvent getHoverEvent() {
+        Text hoverText;
+        if (getDisplayName() == null || Objects.equals(getDisplayName().getLiteralString(), "")) {
+            hoverText = Text.literal(this.name);
+        } else {
+            hoverText = getDisplayName().append(Text.literal("\n" + this.name).styled(style -> style
+                .withColor(Formatting.DARK_GRAY)
+                .withItalic(true)
+            ));
         }
+        return new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText);
+    }
+
+    /**
+     * @return The code point to use this badge in a text.
+     */
+    int getCodepoint() {
+        return codepoint;
+    }
+
+    /**
+     * @param codepoint The new code point.
+     */
+    void setCodepoint(int codepoint) {
+        this.codepoint = codepoint;
+    }
+
+    /**
+     * @return The ready to use text component of the badge.
+     */
+    public Text toText() {
+        return Text.literal(Character.toString((char) this.codepoint)).styled(style -> style
+            .withFont(BadgeFont.IDENTIFIER)
+            .withHoverEvent(this.getHoverEvent())
+        );
+    }
 
     /**
      * Currently loads the hardcoded default badges.
