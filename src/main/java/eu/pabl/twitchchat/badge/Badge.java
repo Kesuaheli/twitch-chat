@@ -119,10 +119,10 @@ public class Badge {
      */
     public static void loadBadges() {
         try {
-            TwitchChatMod.BADGES.add(33, new Badge("broadcaster"));
-            TwitchChatMod.BADGES.add(34, new Badge("moderator"));
-            TwitchChatMod.BADGES.add(35, new Badge("partner"));
-            TwitchChatMod.BADGES.add(36, new Badge("vip"));
+            TwitchChatMod.BADGES.add(new Badge("broadcaster"));
+            TwitchChatMod.BADGES.add(new Badge("moderator"));
+            TwitchChatMod.BADGES.add(new Badge("partner"));
+            TwitchChatMod.BADGES.add(new Badge("vip"));
         } catch (IOException e) {
             TwitchChatMod.LOGGER.error("Error loading hardcoded badges: " + e);
         }
